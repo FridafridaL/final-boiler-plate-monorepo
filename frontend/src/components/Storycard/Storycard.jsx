@@ -3,7 +3,9 @@ import "./Storycard.css";
 import { timeSince } from "../utils/timeUtils";
 import likeIcon from "../../assets/like.svg";
 
-export const StoryCard = ({ story, isActive, onUpdateStories }) => {
+export const StoryCard = ({ story, isActive, handleRankUpdate }) => {
+  const apiUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:3000";
+
   const cardStyle = {
     transform: isActive ? "scale(1)" : "scale(1)",
     transition: "transform 0.3s ease-in-out",
@@ -21,9 +23,9 @@ export const StoryCard = ({ story, isActive, onUpdateStories }) => {
       },
     })
       .then((response) => response.json())
-      .then(() => {
-        if (onUpdateStories) {
-          onUpdateStories(); // Function to trigger re-fetching of stories
+      .then((updatedStory) => {
+        if (handleRankUpdate) {
+          handleRankUpdate(updatedStory);
         }
       })
       .catch((error) => console.error("Error updating story ranking:", error));
@@ -41,8 +43,10 @@ export const StoryCard = ({ story, isActive, onUpdateStories }) => {
       </div>
       {isActive && (
         <div className="story-overlay">
-          <h3>{story.title}</h3>
-          <p>{story.content}</p>
+          <div className="story-overlay-content">
+            <h3>{story.title}</h3>
+            <p>{story.content}</p>
+          </div>
           <div className="overlay-date-icon">
             {timeSince(story.createdAt)}
             <button onClick={handleLikeClick} className="like-button">
@@ -68,5 +72,5 @@ StoryCard.propTypes = {
     image: PropTypes.string, // Image is optional for now
   }).isRequired,
   isActive: PropTypes.bool,
-  onRankUpdate: PropTypes.func,
+  handleRankUpdate: PropTypes.func,
 };
