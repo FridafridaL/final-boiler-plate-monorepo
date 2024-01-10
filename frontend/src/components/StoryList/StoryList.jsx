@@ -21,6 +21,58 @@ export const StoryList = () => {
     setCategories([...new Set(storiesData.map((story) => story.category))]);
   };
 
+  // Function to handle like clicks
+  const handleLikeClick = async (storyId) => {
+    try {
+      const response = await fetch(`${apiUrl}/stories/${storyId}/rank`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const updatedStory = await response.json();
+
+      setStories((prevStories) =>
+        prevStories.map((story) =>
+          story._id === storyId ? updatedStory : story
+        )
+      );
+    } catch (error) {
+      console.error("Error updating story ranking:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Function to fetch stories from backend
+    const fetchStories = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/stories`);
+        const data = await response.json();
+        setStories(data);
+        updateCitiesAndCategories(data);
+      } catch (error) {
+        console.error("Error fetching stories:", error);
+      }
+    };
+    fetchStories();
+  }, [apiUrl]);
+
+  // useEffect(() => {
+  //   // Function to fetch stories from backend
+  //   const fetchStories = async () => {
+  //     try {
+  //       const response = await fetch(`${backendApiUrl}/stories`);
+  //       const data = await response.json();
+  //       setStories(data);
+  //       setCities([...new Set(data.map((story) => story.city))]);
+  //       setCategories([...new Set(data.map((story) => story.category))]);
+  //     } catch (error) {
+  //       console.error("Error fetching stories:", error);
+  //     }
+  //   };
+  //   fetchStories();
+  // }, []);
+
   useEffect(() => {
     // Function to fetch translated stories
     const fetchTranslatedStories = async () => {
@@ -48,7 +100,7 @@ export const StoryList = () => {
         })
         .catch((error) => console.error("Error fetching stories:", error));
     }
-  }, [selectedLanguage]);
+  }, [apiUrl, selectedLanguage]);
 
   const handleFilterTypeChange = (e) => {
     setFilterType(e.target.value);
@@ -142,19 +194,25 @@ export const StoryList = () => {
               <div className="story-image">
                 <img src={`/${story.image}`} alt={`${story.city} story`} />
               </div>
-              <div className="story-footer">
-                {timeSince(story.createdAt)}
-                <img className="like-icon" src={likeIcon} alt="Like" />
-                <span className="like-count">{story.ranking}</span>
+              <div className="story-info">
+                <h3>
+                  {story.category} {story.city}
+                </h3>
               </div>
             </div>
             <div className="story-content">
-              <div className="story-info">
-                <h3>
-                  {story.category} - {story.city}
-                </h3>
-              </div>
+              <h3>{story.title}</h3>
               <p>{story.content}</p>
+              <div className="story-footer">
+                {timeSince(story.createdAt)}
+                <img
+                  className="like-icon"
+                  src={likeIcon}
+                  alt="Like"
+                  onClick={() => handleLikeClick(story._id)}
+                />
+                <span className="like-count">{story.ranking}</span>
+              </div>
             </div>
           </div>
         ))}
