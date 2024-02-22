@@ -5,6 +5,7 @@
     "@react-google-maps/api": "^2.19.2",
     "dotenv": "^16.3.1",
     "npm": "^10.2.5",
+    "react-lottie": "^1.2.4",
     "version": "^0.0.4",
     "view": "^0.6.1"
   }
